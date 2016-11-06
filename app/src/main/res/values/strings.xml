@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <string name="app_name">TryWeather</string>
+    <string-array name="areas">
+        <item>本地</item>
+        <item>同省</item>
+        <item>同国</item>
+        <item>世界</item>
+    </string-array>
+    <string-array name="areas_fn">
+        <item>本地</item>
+        <item>同国</item>
+        <item>世界</item>
+    </string-array>
+</resources>

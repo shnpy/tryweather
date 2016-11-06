@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--有用字段
+中国城市标题栏只需显示城市名称，以及所属省市。外国城市同时显示中文名和英文名，
+
+HeWeather data service 3.0：
+[
+basic:{city（名称）？ cnty(国家名称)，update：{loc}（数据更新时间：当地时间)}
+
+aqi:{city:{aqi,pm25,pm10,so2,o3,qlty}}
+
+suggestion:{{uv(紫外线指数)：{brf，txt}}；{sport（运动指数）：{brf，txt}}}
+
+alarms（如果能读取到则显示，否则不显示）{title，type，level，stat，txt}
+
+daily_forecast :[{date, astro{sr(日出),
+ss（日落）}，temp{max，min}，wind{sc（风力），dir（风向）}
+，cond{txt_d,txt_n},hum(湿度)，pres（气压），vis（能见度）公里},
+
+{},{},{},{}]
+
+状态代码
+{status：
+ok（正常）
+invalid key（错误的用户key）
+unkown city(未知城市)
+no more requests(超过访问次数)
+anr（服务无响应或超时）
+permission denied（没有访问权限）}
+1dp=1/160 英寸=0.015875cm
+1英寸=2.54厘米
+华为荣耀7
+5.2英寸屏幕 像素为1920×1080。问其长和宽为多少英寸。
+长为4.532英寸，宽为2.54925
+则长为725dp，宽为407dp 像素密度为423.6-->
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+    <!--</标题栏信息>-->
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp">
+
+        <!--标题：城市中英文名称-->
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="20sp"
+            android:textColor="#f33f"/>
+
+       <!-- 选择地区的下拉选项-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择城市："
+                android:textSize="18sp"/>
+            <Spinner
+                android:id="@+id/query_areas_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries= "@array/areas">
+            </Spinner>
+        </LinearLayout>
+    </RelativeLayout>  <!--标题栏结束-->
+
+<!--今天天气和空气质量栏-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="600dp">
+
+        <!--发布时间-->
+        <TextView
+            android:id="@+id/publish_time"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:textSize="18sp"/>
+
+        <!--今日日期-->
+        <TextView
+            android:id="@+id/today_date"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/publish_time"
+            android:layout_margin="20dp"
+            android:textSize="20sp"/>
+
+        <!--灾害预警-->
+        <TextView
+            android:id="@+id/alarm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <!--（title标题 type类型 level级别  stat状态 txt描述）-->
+
+        <!--水平滚动窗口，显示今日天气、空气质量，手机传感器数据三个部分-->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="350dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!--今日天气-->
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/text_dayinfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/text_nightinfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/temp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/wind"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/sun_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/suggesiton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </ScrollView>
+
+                <!--空气质量-->
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/aqi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/pm25"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/pm10"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/so2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/co"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/o3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/qlty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </ScrollView>
+
+                <!--传感器数据-->
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/ambient_temperature"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/light_sensor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/accelerometer_sensor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/maget_sensor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/pressure_sensor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/humidity_sensor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    </ScrollView>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        </RelativeLayout>
+
+    <!--未来四日天气预报-->
+
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/second_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/third_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/fourth_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/fifth_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    </HorizontalScrollView>
+
+    </ScrollView>
+
+
