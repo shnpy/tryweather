@@ -35,59 +35,105 @@ permission denied（没有访问权限）}
 则长为725dp，宽为407dp 像素密度为423.6-->
 
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+    <ProgressBar
+        android:id="@+id/loading_weather"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
     <!--</标题栏信息>-->
     <RelativeLayout
-        android:id="@+id/title_bar"
         android:layout_width="match_parent"
-        android:layout_height="80dp">
+        android:layout_height="80dp"
+        android:background="@color/darkmagenta">
+
+        <Button
+            android:id="@+id/refesh"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/refresh"
+        />
 
         <!--标题：城市中英文名称-->
-        <TextView
-            android:id="@+id/title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"
-            android:textColor="#f33f"/>
-
-       <!-- 选择地区的下拉选项-->
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:orientation="vertical">
+            android:layout_centerInParent="true">
             <TextView
+                android:id="@+id/current_city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="选择城市："
-                android:textSize="18sp"/>
+                android:layout_centerInParent="true"
+                android:textColor="@color/gold"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/country_province"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/current_city"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/silver"
+                android:textSize="14sp"/>
+            <TextView
+                android:id="@+id/english_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_city"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/burlywood"
+                android:textSize="14sp"/>
+        </RelativeLayout>
+
+        <!-- 选择地区的下拉选项-->
+        <RelativeLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true">
+
             <Spinner
                 android:id="@+id/query_areas_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries= "@array/areas">
-            </Spinner>
-        </LinearLayout>
-    </RelativeLayout>  <!--标题栏结束-->
+                android:layout_centerInParent="true"
+                android:background="@color/lightgray"
+                android:entries="@array/areas"
 
-<!--今天天气和空气质量栏-->
+                android:textSize="20sp"/>
+            <!--android:spinnerMode="dialog"-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/query_areas_spinner"
+                android:layout_centerHorizontal="true"
+                android:text="选择城市"
+                android:textColor="@color/silver"
+                android:textSize="14sp"/>
+
+        </RelativeLayout>
+    </RelativeLayout><!--标题栏结束-->
+
+    <!--今天天气和空气质量栏-->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="600dp">
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:background="@color/deepskyblue">
 
         <!--发布时间-->
         <TextView
             android:id="@+id/publish_time"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:textSize="18sp"/>
@@ -95,25 +141,33 @@ permission denied（没有访问权限）}
         <!--今日日期-->
         <TextView
             android:id="@+id/today_date"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/publish_time"
-            android:layout_margin="20dp"
+            android:layout_margin="5dp"
+            android:gravity="center"
             android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/text_dayinfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/today_date"
+            android:gravity="center"
+            android:textSize="18sp"/>
 
         <!--灾害预警-->
         <TextView
             android:id="@+id/alarm"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_dayinfo"/>
         <!--（title标题 type类型 level级别  stat状态 txt描述）-->
 
         <!--水平滚动窗口，显示今日天气、空气质量，手机传感器数据三个部分-->
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="350dp">
-
+            android:layout_height="wrap_content"
+            android:layout_below="@id/alarm">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -127,29 +181,30 @@ permission denied（没有访问权限）}
                         android:layout_height="match_parent"
                         android:orientation="vertical">
                         <TextView
-                            android:id="@+id/text_dayinfo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-                        <TextView
                             android:id="@+id/text_nightinfo"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"/>
                         <TextView
                             android:id="@+id/temp"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"/>
                         <TextView
                             android:id="@+id/wind"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"/>
                         <TextView
-                            android:id="@+id/sun_time"
+                            android:id="@+id/pressure"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"/>
                         <TextView
-                            android:id="@+id/suggesiton"
+                            android:id="@+id/suggestion"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"/>
                     </LinearLayout>
                 </ScrollView>
 
@@ -213,7 +268,7 @@ permission denied（没有访问权限）}
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <TextView
-                            android:id="@+id/maget_sensor"
+                            android:id="@+id/magnet_sensor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <TextView
@@ -225,40 +280,66 @@ permission denied（没有访问权限）}
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    </ScrollView>
+                </ScrollView>
             </LinearLayout>
         </HorizontalScrollView>
 
-        </RelativeLayout>
+    </RelativeLayout>
 
     <!--未来四日天气预报-->
-
-
     <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/second_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/third_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/fourth_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/fifth_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/lawngreen"
+        android:fillViewport="true">
+        <LinearLayout android:layout_width="wrap_content"
+                      android:layout_height="match_parent">
+            <!--在ScrollView下面的Layout中，如果设置gravity=center，就会导致显示不全-->
+
+            <TextView
+                android:id="@+id/second_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="15sp"/>
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/third_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="15sp"
+            />
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/fourth_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="15sp"
+            />
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/fifth_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="15sp"
+            />
+        </LinearLayout>
     </HorizontalScrollView>
 
-    </ScrollView>
+
+</LinearLayout>
+
+
+
 
 

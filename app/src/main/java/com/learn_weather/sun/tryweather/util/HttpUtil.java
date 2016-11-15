@@ -36,8 +36,8 @@ public class HttpUtil {
                     url=new URL(address);
                     connection=(HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(20000);
-                    connection.setReadTimeout(20000);
+                    connection.setConnectTimeout(40000);
+                    connection.setReadTimeout(40000);
                     connection.connect();
 
                     if (connection.getResponseCode() != HttpURLConnection
@@ -80,10 +80,10 @@ public class HttpUtil {
                             "has completed!response=" +printResp);
                     in.close();
                     reader.close();
-                    listener.onFinish(response.toString());
+                    listener.httpFinish(response.toString());
                 } catch (Exception e) {
 
-                    listener.onError(e);
+                    listener.httpError(e);
                 } finally {
                     connection.disconnect();
                 }
@@ -149,10 +149,10 @@ public class HttpUtil {
                             "has completed!response=" +printResp);
                     in.close();
                     reader.close();
-                    listener.onFinish(response.toString());
+                    listener.httpFinish(response.toString());
                 } catch (Exception e) {
 
-                    listener.onError(e);
+                    listener.httpError(e);
                 } finally {
                     connection.disconnect();
                 }

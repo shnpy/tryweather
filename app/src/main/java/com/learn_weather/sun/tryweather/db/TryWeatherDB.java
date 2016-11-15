@@ -8,6 +8,7 @@ import android.util.Log;
 import com.learn_weather.sun.tryweather.mode.CityInfo;
 import com.learn_weather.sun.tryweather.mode.County;
 import com.learn_weather.sun.tryweather.mode.Municipality;
+import com.learn_weather.sun.tryweather.mode.OpenWeatherCity;
 
 /**
  * Created by Sun on 2016/10/28.
@@ -127,6 +128,22 @@ public class TryWeatherDB {
             db.endTransaction();
         }
     }
+    public void createOWCities() throws Exception{
+        String createOpenWeatherCities="CREATE TABLE OpenWeatherCities(id " +
+                "integer primary key autoincrement,cityId integer,cityName " +
+                "text,country text,longitude real,latitude real)";
+        db.execSQL(createOpenWeatherCities);
+    }
+    public void insertIntoOWCities(OpenWeatherCity city) throws Exception{
+
+        String insertStatement="insert into OpenWeatherCities values(null," +
+                "?,?,?,?,?)";
+        String[] values={city.getCityId()+"",city.getCityName(),
+        city.getCountry(),city.getLongitude()+"",city.getLatitude()+""};
+        db.execSQL(insertStatement,values);
+    }
+
+
 
     public SQLiteDatabase getDb() {
         return db;

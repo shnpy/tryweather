@@ -1,6 +1,7 @@
 package com.learn_weather.sun.tryweather.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,6 +20,7 @@ import com.learn_weather.sun.tryweather.db.TryWeatherDB;
 import com.learn_weather.sun.tryweather.mode.CityInfo;
 import com.learn_weather.sun.tryweather.mode.County;
 import com.learn_weather.sun.tryweather.mode.Municipality;
+import com.learn_weather.sun.tryweather.mode.OpenWeatherCity;
 import com.learn_weather.sun.tryweather.util.AnalyzeData;
 import com.learn_weather.sun.tryweather.util.HttpListener;
 import com.learn_weather.sun.tryweather.util.HttpUtil;
@@ -35,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrepareDataActivity extends Activity {
     //设置log的TAG标签
-    private static final String TAG="TT";
+    private static final String TAG="ZZZZZTT";
     private final String localTag=getClass().getSimpleName() + "__";
 
 
@@ -73,6 +75,8 @@ public class PrepareDataActivity extends Activity {
     long countiesStart;
     long countiesDuration;
 
+    AssetManager assetManager;
+
 
     private Message msg=new Message();
 
@@ -89,6 +93,7 @@ public class PrepareDataActivity extends Activity {
                             "programmer to fix the bug!");
                     break;
                 case FINISHED:
+                    editor.putBoolean("initialized", true).commit();
                     success.setVisibility(View.VISIBLE);
                     wholeDuraiton=System.currentTimeMillis() - initialStartTime;
                     result.setText("all tables of " +
@@ -110,6 +115,10 @@ public class PrepareDataActivity extends Activity {
                             "" + "has been fulfilled", Toast.LENGTH_LONG)
                             .show();
                     progressBar.setVisibility(View.INVISIBLE);
+
+                    Intent intent=new Intent(PrepareDataActivity.this,
+                            WeatherActivity.class);
+                    startActivity(intent);
                     break;
                 case SHOW_PROGRESS:
                     progressBar.setProgress(progess.get());
@@ -132,8 +141,10 @@ public class PrepareDataActivity extends Activity {
         db=tryWeatherDB.getDb();
         Log.d(TAG, localTag + "onCreate: aftert obtain Db");
 
-        clear();//初始化清零
+//       clear();//初始化清零
         boolean initialized=pre.getBoolean("initialized", false);
+        boolean needUpdated=pre.getBoolean("needUpdated", true);
+//        boolean needUpdated=true;
 
         result=(TextView) findViewById(R.id.result);
         success=(TextView) findViewById(R.id.success);
@@ -154,11 +165,52 @@ public class PrepareDataActivity extends Activity {
             showProgress();
             fillCityInfoAndCountries();
             fillProvinces();
-            editor.putBoolean("isProvincesFilled", true).commit();
             Log.d(TAG, localTag + "provinces has been filled!");
             fillMunicipalitiesAndCounties();
             Log.d(TAG, localTag + " main thread after " +
                     "fillMunicipalitiesAndCounties()!");
+        } else {
+            Intent intent=new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+        }
+
+        if (needUpdated) {
+            fillOWCities();
+
+
+        }
+
+
+    }
+
+    private void fillOWCities() {
+        assetManager=this.getAssets();
+        try {
+            tryWeatherDB.createOWCities();
+            InputStream in=assetManager.open("city.list.json");
+            BufferedReader reader=new BufferedReader(new InputStreamReader(in));
+            ArrayList<OpenWeatherCity> cityList=new ArrayList<>();
+//            citiesJson.append("[");
+            String line;
+            while ((line=reader.readLine()) != null) {
+                AnalyzeData.analyzeJsonOWCities(line,cityList);
+            }
+//            citiesJson.append("]");
+            try {
+                db.beginTransaction();
+                for (OpenWeatherCity city : cityList) {
+                    tryWeatherDB.insertIntoOWCities(city);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            editor.putBoolean("needUpdated", false).commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, localTag + "fillOWCities: error=" + e.toString() + " "
+                    + e.getMessage());
+            db.execSQL("drop table if exists OpenWeatherCities");
         }
 
 
@@ -187,13 +239,13 @@ public class PrepareDataActivity extends Activity {
                 WeatherActivity.HE_WEATHER_KEY;
         HttpUtil.sendRequest(address, this, new HttpListener() {
             @Override
-            public void onFinish(String response) {
+            public void httpFinish(String response) {
                 try {
 
                     ArrayList<CityInfo> cityInfoList=AnalyzeData
                             .analyzeJSONCityInfo(response, PrepareDataActivity
                             .this);
-                    Log.d(TAG, localTag + "fillDB onFinish: before fill the " +
+                    Log.d(TAG, localTag + "fillDB httpFinish: before fill the " +
                             "CityInfo table.");
                     int countOfRecords=0;
 
@@ -217,7 +269,6 @@ public class PrepareDataActivity extends Activity {
                     tryWeatherDB.fillCountries();
                     progess.addAndGet(500);
                     showProgress();
-                    editor.putBoolean("isCountriesFilled", true).commit();
                     Log.d(TAG, localTag + "Counttries has been filled! ");
                     cityInfoDuration=System.currentTimeMillis() - cityInfoStart;
                     citiInfoFinished=true;
@@ -230,7 +281,7 @@ public class PrepareDataActivity extends Activity {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void httpError(Exception e) {
                 handleError(e, "connect address:" + address);
             }
         });
@@ -239,7 +290,7 @@ public class PrepareDataActivity extends Activity {
 
     //读取assets文件夹下面的provinces.txt内容把省列表存入数据库中
     private void fillProvinces() {
-        AssetManager assetManager=this.getAssets();
+        assetManager=this.getAssets();
         try {
             InputStream in=assetManager.open("provinces.txt");
             BufferedReader reader=new BufferedReader(new InputStreamReader(in));
@@ -249,7 +300,7 @@ public class PrepareDataActivity extends Activity {
                 provincesBuilder.append(line);
                 progess.addAndGet(4);
             }
-            Log.d(TAG, localTag + "onFinish: provinces=" +
+            Log.d(TAG, localTag + "httpFinish: provinces=" +
                     provincesBuilder.toString());
             in.close();
             reader.close();
@@ -287,7 +338,7 @@ public class PrepareDataActivity extends Activity {
 
             HttpUtil.sendRequest(address, this, new HttpListener() {
                 @Override
-                public void onFinish(String response) {
+                public void httpFinish(String response) {
                     if (errorHappened) {
                         return;
                     }
@@ -325,13 +376,13 @@ public class PrepareDataActivity extends Activity {
                         handleError(e, "insertIntoMunicipalities" + "()");
                     }
                     Log.d(TAG, localTag + "fillMunicipalitiesAndCounties()" +
-                            ".onFinish():" + "after insert one muncipality " +
+                            ".httpFinish():" + "after insert one muncipality " +
                             "even if" +
                             " the error has happened.");
                 }
 
                 @Override
-                public void onError(Exception e) {
+                public void httpError(Exception e) {
                     handleError(e, "connect address:" + address);
                 }
             });
@@ -366,7 +417,7 @@ public class PrepareDataActivity extends Activity {
                     codes[i] + ".xml";
             HttpUtil.sendRequest(address, this, new HttpListener() {
                 @Override
-                public void onFinish(String response) {
+                public void httpFinish(String response) {
                     if (errorHappened) {
                         return;
                     }
@@ -376,7 +427,7 @@ public class PrepareDataActivity extends Activity {
 
                     try {
                         if (successNumber == codes.length) {
-                            Log.d(TAG, localTag + "onFinish: begin to insert " +
+                            Log.d(TAG, localTag + "httpFinish: begin to insert " +
                                     "into" +
                                     " Counties!");
                             showProgress();
@@ -423,7 +474,7 @@ public class PrepareDataActivity extends Activity {
                 }
 
                 @Override
-                public void onError(Exception e) {
+                public void httpError(Exception e) {
                     handleError(e, "connect address:" + address);
                 }
             });

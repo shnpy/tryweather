@@ -6,6 +6,6 @@ package com.learn_weather.sun.tryweather.util;
 
 public interface HttpListener {
 
-    public void onFinish(String response);
-    public void onError(Exception e);
+    public void httpFinish(String response);
+    public void httpError(Exception e);
 }

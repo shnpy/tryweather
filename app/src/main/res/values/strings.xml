@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
     <string name="app_name">TryWeather</string>
+    <string name="city_option">选择城市</string>
     <string-array name="areas">
         <item>本地</item>
         <item>同省</item>
